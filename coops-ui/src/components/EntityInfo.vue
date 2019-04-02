@@ -2,7 +2,7 @@
   <div id="entity-info">
     <v-container>
         <div class="title-container">
-          <div class="entity-name">{{ entityName }}</div>
+          <div class="entity-name">{{ entityName }} K1</div>
 
           <!-- TODO: Discuss/decide how we are handling entity statuses (e.g. 'GOODSTANDING' etc.) -->
           <v-chip class="entity-status"

@@ -101,19 +101,6 @@ if( run_pipeline ) {
         {
             node (py3nodejs_label) {
                     checkout scm
-                    dir('coops-ui') {
-                        //try {
-                            sh '''
-                                npm install -g @vue/cli
-                                npm run test:unit
-                            '''
-                            echo "Unit tests ran"
-                        /*
-                        } catch (Exception e) {
-                            // do nothing
-                        }
-                        */
-                    }
             }
         }
 

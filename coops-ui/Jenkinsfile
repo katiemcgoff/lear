@@ -112,7 +112,7 @@ if( run_pipeline ) {
 
                             echo "Unit tests ran, returned ${retval}"
                             if (retval > 0) {
-                                currentBuild.result = 'UNSTABLE'
+                                currentBuild.color = 'Yellow'
                             }
                         } catch (Exception e) {
                             error('Failure')

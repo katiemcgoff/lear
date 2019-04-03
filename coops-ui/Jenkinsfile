@@ -107,7 +107,8 @@ if( run_pipeline ) {
                             sh '''
                                 node -v
                                 npm install
-                                npm run test:unit
+                                def retval = npm run test:unit
+                                echo "the return value is ${retval}"
                             '''
                             echo "Unit tests ran"
                         } catch (Exception e) {

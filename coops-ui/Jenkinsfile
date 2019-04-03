@@ -89,7 +89,7 @@ if( run_pipeline ) {
                 resourceRequestCpu: '500m',
                 resourceLimitCpu: '1000m',
                 resourceRequestMemory: '1Gi',
-                resourceLimitMemory: '1Gi',
+                resourceLimitMemory: '2Gi',
                 workingDir: '/tmp',
                 command: '',
                 args: '${computer.jnlpmac} ${computer.name}'
@@ -99,7 +99,19 @@ if( run_pipeline ) {
             node (py3nodejs_label) {
                 stage("Run Jest tests") {
                     checkout scm
-                    echo "happy!"
+                    dir('coops-ui') {
+                        //try {
+                            sh '''
+                                npm install -g @vue/cli
+                                npm run test:unit
+                            '''
+                            echo "Unit tests ran"
+                        /*
+                        } catch (Exception e) {
+                            // do nothing
+                        }
+                        */
+                    }
                 }
             }
         }

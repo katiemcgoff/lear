@@ -109,6 +109,7 @@ if( run_pipeline ) {
                             echo "Unit tests ran"
                         } catch (Exception e) {
                             echo "failure boo :("
+                            currentBuild.result = 'FAILURE'
                         }
                     }
             }

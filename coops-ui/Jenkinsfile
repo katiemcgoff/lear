@@ -87,7 +87,8 @@ node {
                 dir('coops-ui') {
                     //try {
                         sh '''
-                            vue-cli-service test:unit
+                            npm install -g @vue/cli
+                            npm run test:unit
                         '''
                         echo "Unit tests ran"
                     /*

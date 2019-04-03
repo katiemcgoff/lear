@@ -103,7 +103,7 @@ if( run_pipeline ) {
                     dir('coops-ui') {
                         //try {
                             sh '''
-                                sudo npm install -g @vue/cli
+                                //npm install -g @vue/cli
                                 npm run test:unit
                             '''
                             echo "Unit tests ran"

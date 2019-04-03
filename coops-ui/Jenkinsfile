@@ -117,6 +117,7 @@ if( run_pipeline ) {
                         } catch (Exception e) {
                             echo "failure boo :("
                             currentBuild.result = 'FAILURE'
+                            error('Failure')
                             abort = true
                         }
                     }

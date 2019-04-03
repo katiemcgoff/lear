@@ -104,7 +104,7 @@ if( run_pipeline ) {
                     checkout scm
                     dir('coops-ui') {
                         try {
-                            sh '''asdf
+                            sh '''asdfa
                                 node -v
                                 npm install
                             '''
@@ -113,10 +113,9 @@ if( run_pipeline ) {
                             echo "Unit tests ran, returned ${retval}"
                             currentBuild.result = 'UNSTABLE'
                         } catch (Exception e) {
-                            echo "failure boo :("
                             currentBuild.result = 'FAILURE'
                             error('Failure')
-                            abort = true
+                            //abort = true
                         }
                     }
             }

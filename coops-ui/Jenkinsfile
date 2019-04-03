@@ -104,18 +104,18 @@ if( run_pipeline ) {
                     checkout scm
                     dir('coops-ui') {
                         try {
-                            sh '''asdfa
+                            sh '''
                                 node -v
                                 npm install
                             '''
                             def retval  = sh(script: "npm run test:unit", returnStatus: true)
 
                             echo "Unit tests ran, returned ${retval}"
-                            currentBuild.result = 'UNSTABLE'
+                            if (retval > 0) {
+                                currentBuild.result = 'UNSTABLE'
+                            }
                         } catch (Exception e) {
-                            currentBuild.result = 'FAILURE'
                             error('Failure')
-                            //abort = true
                         }
                     }
             }
@@ -127,79 +127,71 @@ if( run_pipeline ) {
   node {
 
 
-    if (!abort) {
 
-        stage("Build ${BUILD_CONFIG}") {
-          script {
-            openshift.withCluster() {
-              openshift.withProject() {
+    stage("Build ${BUILD_CONFIG}") {
+      script {
+        openshift.withCluster() {
+          openshift.withProject() {
 
-                echo "Building the application artifacts ..."
-                def build = openshift.selector("bc", "${BUILD_CONFIG}")
-                build.startBuild().logs("-f")
-              }
-            }
+            echo "Building the application artifacts ..."
+            def build = openshift.selector("bc", "${BUILD_CONFIG}")
+            build.startBuild().logs("-f")
           }
         }
+      }
     }
 
-    if (!abort) {
-        stage("Build ${IMAGESTREAM_NAME}") {
-          script {
-            openshift.withCluster() {
-              openshift.withProject() {
+    stage("Build ${IMAGESTREAM_NAME}") {
+      script {
+        openshift.withCluster() {
+          openshift.withProject() {
 
-                echo "Building the ${IMAGESTREAM_NAME} image ..."
-                def build = openshift.selector("bc", "${CHAINED_BUILD_CONFIG}")
-                build.startBuild().logs("-f")
+            echo "Building the ${IMAGESTREAM_NAME} image ..."
+            def build = openshift.selector("bc", "${CHAINED_BUILD_CONFIG}")
+            build.startBuild().logs("-f")
 
-                def IMAGE_HASH_DEBUG = getImageTagHash("${IMAGESTREAM_NAME}")
-                echo "Completed build, image is: ${IMAGE_HASH_DEBUG}"
-              }
-            }
+            def IMAGE_HASH_DEBUG = getImageTagHash("${IMAGESTREAM_NAME}")
+            echo "Completed build, image is: ${IMAGE_HASH_DEBUG}"
           }
         }
-
+      }
     }
 
-    if (!abort) {
-        stage("Deploy ${TAG_NAMES[0]}") {
-          script {
-            openshift.withCluster() {
-              openshift.withProject() {
 
-                echo "Tagging ${IMAGESTREAM_NAME} for deployment to ${TAG_NAMES[0]} ..."
+    stage("Deploy ${TAG_NAMES[0]}") {
+      script {
+        openshift.withCluster() {
+          openshift.withProject() {
 
-                // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
-                // Tag the images for deployment based on the image's hash
-                def IMAGE_HASH = getImageTagHash("${IMAGESTREAM_NAME}")
-                echo "IMAGE_HASH: ${IMAGE_HASH}"
-                openshift.tag("${IMAGESTREAM_NAME}@${IMAGE_HASH}", "${IMAGESTREAM_NAME}:${TAG_NAMES[0]}")
-              }
+            echo "Tagging ${IMAGESTREAM_NAME} for deployment to ${TAG_NAMES[0]} ..."
 
-              echo "Deployment Complete."
-            }
+            // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
+            // Tag the images for deployment based on the image's hash
+            def IMAGE_HASH = getImageTagHash("${IMAGESTREAM_NAME}")
+            echo "IMAGE_HASH: ${IMAGE_HASH}"
+            openshift.tag("${IMAGESTREAM_NAME}@${IMAGE_HASH}", "${IMAGESTREAM_NAME}:${TAG_NAMES[0]}")
+          }
+
+          echo "Deployment Complete."
+        }
+      }
+    }
+
+    /* ZAP scan - commented out for now until can be implemented correctly
+    stage('Trigger ZAP Scan') {
+      script {
+        openshift.withCluster() {
+          openshift.withProject() {
+
+            echo "Triggering an asynchronous ZAP Scan ..."
+            def zapScan = openshift.selector("bc", "zap-pipeline")
+            zapScan.startBuild()
           }
         }
-
+      }
     }
+    */
 
-    if (!abort) {
-        /* ZAP scan - commented out for now until can be implemented correctly
-        stage('Trigger ZAP Scan') {
-          script {
-            openshift.withCluster() {
-              openshift.withProject() {
-
-                echo "Triggering an asynchronous ZAP Scan ..."
-                def zapScan = openshift.selector("bc", "zap-pipeline")
-                zapScan.startBuild()
-              }
-            }
-          }
-        }
-        */
-    }
   }
 }
 else {

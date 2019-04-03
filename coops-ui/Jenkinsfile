@@ -64,7 +64,9 @@ String getImageTagHash(String imageName, String tag = "") {
   def istag = openshift.raw("get istag ${imageName}:${tag} -o template --template='{{.image.dockerImageReference}}'")
   return istag.out.tokenize('@')[1].trim()
 }
+
 def run_pipeline = true
+def abort = false
 
 // build wasn't triggered by changes so check with user
 if( !triggerBuild(CONTEXT_DIRECTORY) ) {
@@ -83,11 +85,11 @@ if( run_pipeline ) {
     stage("Run Jest tests") {
 
         //node/pod needs environment setup for testing
-        def py3nodejs_label = "jenkins-py3nodejs-${UUID.randomUUID().toString()}"
-        podTemplate(label: py3nodejs_label, name: py3nodejs_label, serviceAccount: 'jenkins', cloud: 'openshift', containers: [
+        def nodejs_label = "jenkins-nodejs-${UUID.randomUUID().toString()}"
+        podTemplate(label: nodejs_label, name: nodejs_label, serviceAccount: 'jenkins', cloud: 'openshift', containers: [
             containerTemplate(
                 name: 'jnlp',
-                image: '172.50.0.2:5000/openshift/jenkins-slave-py3nodejs',
+                image: '172.50.0.2:5000/openshift/jenkins-slave-nodejs',
                 resourceRequestCpu: '500m',
                 resourceLimitCpu: '1000m',
                 resourceRequestMemory: '1Gi',
@@ -103,13 +105,14 @@ if( run_pipeline ) {
                     dir('coops-ui') {
                         try {
                             sh '''
+                                node -v
                                 npm install
                                 npm run test:unit
                             '''
                             echo "Unit tests ran"
                         } catch (Exception e) {
                             echo "failure boo :("
-                            currentBuild.result = 'FAILURE'
+                            abort = true
                         }
                     }
             }
@@ -118,72 +121,82 @@ if( run_pipeline ) {
 
 
 
-
   node {
 
-    stage("Build ${BUILD_CONFIG}") {
-      script {
-        openshift.withCluster() {
-          openshift.withProject() {
 
-            echo "Building the application artifacts ..."
-            def build = openshift.selector("bc", "${BUILD_CONFIG}")
-            build.startBuild().logs("-f")
+    if (!abort) {
+
+        stage("Build ${BUILD_CONFIG}") {
+          script {
+            openshift.withCluster() {
+              openshift.withProject() {
+
+                echo "Building the application artifacts ..."
+                def build = openshift.selector("bc", "${BUILD_CONFIG}")
+                build.startBuild().logs("-f")
+              }
+            }
           }
         }
-      }
     }
 
+    if (!abort) {
+        stage("Build ${IMAGESTREAM_NAME}") {
+          script {
+            openshift.withCluster() {
+              openshift.withProject() {
 
-    stage("Build ${IMAGESTREAM_NAME}") {
-      script {
-        openshift.withCluster() {
-          openshift.withProject() {
+                echo "Building the ${IMAGESTREAM_NAME} image ..."
+                def build = openshift.selector("bc", "${CHAINED_BUILD_CONFIG}")
+                build.startBuild().logs("-f")
 
-            echo "Building the ${IMAGESTREAM_NAME} image ..."
-            def build = openshift.selector("bc", "${CHAINED_BUILD_CONFIG}")
-            build.startBuild().logs("-f")
-
-            def IMAGE_HASH_DEBUG = getImageTagHash("${IMAGESTREAM_NAME}")
-            echo "Completed build, image is: ${IMAGE_HASH_DEBUG}"
+                def IMAGE_HASH_DEBUG = getImageTagHash("${IMAGESTREAM_NAME}")
+                echo "Completed build, image is: ${IMAGE_HASH_DEBUG}"
+              }
+            }
           }
         }
-      }
+
     }
 
-    stage("Deploy ${TAG_NAMES[0]}") {
-      script {
-        openshift.withCluster() {
-          openshift.withProject() {
+    if (!abort) {
+        stage("Deploy ${TAG_NAMES[0]}") {
+          script {
+            openshift.withCluster() {
+              openshift.withProject() {
 
-            echo "Tagging ${IMAGESTREAM_NAME} for deployment to ${TAG_NAMES[0]} ..."
+                echo "Tagging ${IMAGESTREAM_NAME} for deployment to ${TAG_NAMES[0]} ..."
 
-            // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
-            // Tag the images for deployment based on the image's hash
-            def IMAGE_HASH = getImageTagHash("${IMAGESTREAM_NAME}")
-            echo "IMAGE_HASH: ${IMAGE_HASH}"
-            openshift.tag("${IMAGESTREAM_NAME}@${IMAGE_HASH}", "${IMAGESTREAM_NAME}:${TAG_NAMES[0]}")
-          }
+                // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
+                // Tag the images for deployment based on the image's hash
+                def IMAGE_HASH = getImageTagHash("${IMAGESTREAM_NAME}")
+                echo "IMAGE_HASH: ${IMAGE_HASH}"
+                openshift.tag("${IMAGESTREAM_NAME}@${IMAGE_HASH}", "${IMAGESTREAM_NAME}:${TAG_NAMES[0]}")
+              }
 
-          echo "Deployment Complete."
-        }
-      }
-    }
-
-    /* ZAP scan - commented out for now until can be implemented correctly
-    stage('Trigger ZAP Scan') {
-      script {
-        openshift.withCluster() {
-          openshift.withProject() {
-
-            echo "Triggering an asynchronous ZAP Scan ..."
-            def zapScan = openshift.selector("bc", "zap-pipeline")
-            zapScan.startBuild()
+              echo "Deployment Complete."
+            }
           }
         }
-      }
+
     }
-    */
+
+    if (!abort) {
+        /* ZAP scan - commented out for now until can be implemented correctly
+        stage('Trigger ZAP Scan') {
+          script {
+            openshift.withCluster() {
+              openshift.withProject() {
+
+                echo "Triggering an asynchronous ZAP Scan ..."
+                def zapScan = openshift.selector("bc", "zap-pipeline")
+                zapScan.startBuild()
+              }
+            }
+          }
+        }
+        */
+    }
   }
 }
 else {

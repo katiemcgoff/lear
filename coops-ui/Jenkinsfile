@@ -108,12 +108,12 @@ if( run_pipeline ) {
                                 node -v
                                 npm install
                             '''
-                            def retval = sh '''
-                                npm run test:unit
-                            '''
+                            def retval = sh script: npm run test:unit, returnStatus: true
                             echo "Unit tests ran, returned ${retval}"
+                            currentBuild.result = 'UNSTABLE'
                         } catch (Exception e) {
                             echo "failure boo :("
+                            currentBuild.result = 'FAILURE'
                             abort = true
                         }
                     }

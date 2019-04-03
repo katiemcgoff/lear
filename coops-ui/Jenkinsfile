@@ -82,6 +82,22 @@ node {
 
   if( run_pipeline ) {
 
+    stage("Run Jest tests") {
+                checkout scm
+                dir('coops-ui') {
+                    try {
+                        sh '''
+                            vue-cli-service test:unit
+                        '''
+                        echo "Unit tests ran"
+                    /*
+                    } catch (Exception e) {
+                        // do nothing
+                    }
+                    */
+
+    }
+
     stage("Build ${BUILD_CONFIG}") {
       script {
         openshift.withCluster() {

@@ -100,7 +100,7 @@ if( run_pipeline ) {
             )
         ])
         {
-            node (py3nodejs_label) {
+            node (nodejs_label) {
                     checkout scm
                     dir('coops-ui') {
                         try {

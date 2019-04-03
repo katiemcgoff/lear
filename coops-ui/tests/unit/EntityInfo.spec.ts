@@ -36,7 +36,7 @@ describe('EntityInfo.vue', () => {
 
     setTimeout(() => {
       // expect business name, business no, incorp no, and status to be on the screen
-      expect(vm.$el.querySelector('.entity-name').textContent).toEqual('My Business Name XYZ')
+      expect(vm.$el.querySelector('.entity-name').textContent).toEqual('My Business Name XYZA')
       expect(vm.$el.querySelector('.entity-status').textContent).toContain('Pending Dissolution')
       expect(vm.$el.querySelector('.business-number').textContent).toEqual('123')
       expect(vm.$el.querySelector('.incorp-number').textContent).toEqual('456')

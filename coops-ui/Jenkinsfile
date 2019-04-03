@@ -86,7 +86,7 @@ if( run_pipeline ) {
 
         //node/pod needs environment setup for testing
         def nodejs_label = "jenkins-nodejs-${UUID.randomUUID().toString()}"
-        podTemplate(label: nodejs_label, name: nodejs_label, serviceAccount: 'jenkins', cloud: 'openshift', containers: [
+        podTemplate(label: 8, name: nodejs_label, serviceAccount: 'jenkins', cloud: 'openshift', containers: [
             containerTemplate(
                 name: 'jnlp',
                 image: '172.50.0.2:5000/openshift/jenkins-slave-nodejs',

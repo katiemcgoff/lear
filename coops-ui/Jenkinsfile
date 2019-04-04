@@ -113,7 +113,9 @@ if( run_pipeline ) {
                         echo "Unit tests ran, returned ${testResults}"
                         if (testResults > 0) {
                             echo currentBuild.result
-                            stage("failed tests") {}
+                            stage("failed tests") {
+                                currentBuild.result = 'FAILED'
+                            }
                         }
                     }
                     stage("Check code quality (lint)") {
@@ -132,8 +134,6 @@ if( run_pipeline ) {
             }
         }
     }
-
-
 
 
   node {

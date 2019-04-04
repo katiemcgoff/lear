@@ -45,11 +45,6 @@ export default {
       entityBusinessNo: '123456789',
       entityIncNo: '123456789'
     }
-  },
-  methods: {
-    something: function () {
-      return true;
-    }
   }
 }
 </script>

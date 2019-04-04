@@ -112,8 +112,7 @@ if( run_pipeline ) {
 
                             echo "Unit tests ran, returned ${retval}"
                             if (retval > 0) {
-                                //currentBuild.ballColor = 'YELLOW'
-                                echo currentBuild
+                                currentBuild.result = 'FAILURE'
                             }
                         } catch (Exception e) {
                             error('Failure')
@@ -127,6 +126,8 @@ if( run_pipeline ) {
 
   node {
 
+    // reset current build status in case it was set as failure during jest tests
+    currentBuild.result = 'SUCCESS'
 
 
     stage("Build ${BUILD_CONFIG}") {

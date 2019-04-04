@@ -112,7 +112,7 @@ if( run_pipeline ) {
 
                             echo "Unit tests ran, returned ${retval}"
                             if (retval > 0) {
-                                currentBuild.color = 'Yellow'
+                                currentBuild.ballColor = 'YELLOW'
                             }
                         } catch (Exception e) {
                             error('Failure')

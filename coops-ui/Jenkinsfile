@@ -66,7 +66,6 @@ String getImageTagHash(String imageName, String tag = "") {
 }
 
 def run_pipeline = true
-def abort = false
 
 // build wasn't triggered by changes so check with user
 if( !triggerBuild(CONTEXT_DIRECTORY) ) {

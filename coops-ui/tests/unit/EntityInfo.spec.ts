@@ -44,7 +44,7 @@ describe('EntityInfo.vue', () => {
   })
 
   it('handles empty data', () => {
-    expect(vm.$el.querySelector('.entity-name').textContent).toEqual('')
+    expect(vm.$el.querySelector('.entity-name').textContent).toEqual('x')
     expect(vm.$el.querySelector('.entity-status').textContent).toContain('')
     expect(vm.$el.querySelector('.business-number').textContent).toEqual('Not Available')
     expect(vm.$el.querySelector('.incorp-number').textContent).toEqual('Not Available')

@@ -112,10 +112,7 @@ if( run_pipeline ) {
 
                         echo "Unit tests ran, returned ${testResults}"
                         if (testResults > 0) {
-                            echo currentBuild.result
-                            stage("failed tests") {
-                                currentBuild.result = 'FAILED'
-                            }
+                            stage("UNIT TESTS FAILED!") {}
                         }
                     }
                     stage("Check code quality (lint)") {
@@ -123,7 +120,7 @@ if( run_pipeline ) {
 
                         echo "Linter ran, returned ${lintResults}"
                         if (lintResults > 0) {
-                            echo currentBuild.result
+                            stage("LINTER FAILED!") {}
                         }
                     }
 

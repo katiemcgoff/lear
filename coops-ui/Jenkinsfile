@@ -112,7 +112,13 @@ if( run_pipeline ) {
 
                         echo "Unit tests ran, returned ${testResults}"
                         if (testResults > 0) {
-                            stage("UNIT TESTS FAILED!") {}
+                            try {
+                                timeout(time: 1, unit: 'DAYS') {
+                                    input message: "Unit tests failed. Continue?", id: "1"
+                                }
+                            } catch (Exception e) {
+                                error('Abort')
+                            }
                         }
                     }
                     stage("Check code quality (lint)") {
@@ -120,7 +126,13 @@ if( run_pipeline ) {
 
                         echo "Linter ran, returned ${lintResults}"
                         if (lintResults > 0) {
-                            stage("LINTER FAILED!") {}
+                            try {
+                                timeout(time: 1, unit: 'DAYS') {
+                                    input message: "Linter failed. Continue?", id: "2"
+                                }
+                            } catch (Exception e) {
+                                error('Abort')
+                            }
                         }
                     }
 

@@ -83,7 +83,7 @@ if( !triggerBuild(CONTEXT_DIRECTORY) ) {
 if( run_pipeline ) {
 
 
-    //node/pod needs environment setup for testing
+    // create NodeJS pod to run verification steps
     def nodejs_label = "jenkins-nodejs-${UUID.randomUUID().toString()}"
     podTemplate(label: nodejs_label, name: nodejs_label, serviceAccount: 'jenkins', cloud: 'openshift', containers: [
         containerTemplate(
@@ -122,7 +122,7 @@ if( run_pipeline ) {
                         }
                     }
                     stage("Check code quality (lint)") {
-                        def lintResults = sh(script: "vue-cli-service lint --no-fix", returnStatus: true)
+                        def lintResults = sh(script: "npm run lint", returnStatus: true)
 
                         echo "Linter ran, returned ${lintResults}"
                         if (lintResults > 0) {

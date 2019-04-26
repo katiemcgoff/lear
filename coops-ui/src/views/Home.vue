@@ -47,6 +47,7 @@ export default {
     }
   },
   mounted () {
+    console.log('Home.vue monuted()')
     var today = new Date()
     this.$store.state.currentDate = today.getFullYear() + '-' + ('0' + (+today.getMonth() + 1)).slice(-2) + '-' +
       ('0' + today.getDate()).slice(-2)
@@ -57,14 +58,17 @@ export default {
   methods: {
     setCorpNum () {
       // set corpnum, check for error
+      console.log('setCorpNum()')
       this.$store.state.corpNum = sessionStorage.getItem('USERNAME')
       if (this.$store.state.corpNum == null) {
         console.error('No USERNAME set in sessionStorage - cannot get corpNum')
       } else {
         this.$store.state.corpNum = this.$store.state.corpNum.toUpperCase()
       }
+      console.log('-- ' + this.$store.state.corpNum)
     },
     getARInfo (corpNum) {
+      console.log('getARInfo()')
       var token = sessionStorage.getItem('KEYCLOAK_TOKEN')
       // when calling the api make sure this url is for most recent AR - stub specifies 2017 + add token in header
       var url = '/api/v1/businesses/' + corpNum + '/filings/annual_report?year=2017'

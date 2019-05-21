@@ -131,7 +131,7 @@ node {
             } // end stage - local pytest
 
         }//end stage
-
+    }
 
     // 4. spin down oracle pod
 

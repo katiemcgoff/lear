@@ -82,11 +82,7 @@ node {
                 envVar(key:'TEST_ORACLE_HOST', value: "oradb1"),
                 envVar(key:'TEST_ORACLE_PORT', value: "1521"),
                 secretEnvVar(key: 'TEST_ORACLE_USER', secretName: 'oracle-integration-test', secretKey: 'test-database-user'),
-                secretEnvVar(key: 'TEST_ORACLE_PASSWORD', secretName: 'oracle-integration-test', secretKey: 'test-database-password'),
-                //secretEnvVar(key: 'JWT_OIDC_WELL_KNOWN_CONFIG', secretName: 'namex-keycloak-secrets', secretKey: 'JWT_OIDC_WELL_KNOWN_CONFIG'),
-                //secretEnvVar(key: 'JWT_OIDC_ALGORITHMS', secretName: 'namex-keycloak-secrets', secretKey: 'JWT_OIDC_ALGORITHMS'),
-                //secretEnvVar(key: 'JWT_OIDC_AUDIENCE', secretName: 'namex-keycloak-secrets', secretKey: 'JWT_OIDC_AUDIENCE'),
-                //secretEnvVar(key: 'JWT_OIDC_CLIENT_SECRET', secretName: 'namex-keycloak-secrets', secretKey: 'JWT_OIDC_CLIENT_SECRET')
+                secretEnvVar(key: 'TEST_ORACLE_PASSWORD', secretName: 'oracle-integration-test', secretKey: 'test-database-password')
            ]
         )
     ])

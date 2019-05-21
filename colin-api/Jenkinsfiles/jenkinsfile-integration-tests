@@ -91,46 +91,47 @@ node {
         )
     ])
     {
-    node (py3njs_label){
-        stage('Checkout') {
-            try {
-                echo "checking out source"
-                echo "Build: ${BUILD_ID}"
-                checkout scm
-                GIT_COMMIT_SHORT_HASH = sh (
-                        script: """git describe --always""", returnStdout: true
-                    ).trim()
-                GIT_COMMIT_AUTHOR = sh (
-                        script: """git show -s --pretty=%an""", returnStdout: true
-                    ).trim()
-
-            } catch (Exception e) {
-                echo "error during checkout: ${e}"
-                error('Aborted')
-            }
-            stage ('local pytest') {
-                echo "Testing build: ${BUILD_ID}"
-                echo "Running tests "
+        node (py3njs_label){
+            stage('Checkout') {
                 try {
-                    sh '''
-                         cd colin-api
-                         python --version
-                         pip install pip --upgrade
-                         pip install -r requirements/testing.txt
-                         pytest --junitxml=pytest_report.xml
-                    '''
-                    junit 'colin-api/pytest_report.xml'
-                    stash includes: 'colin-api/pytest_report.xml', name: 'colin-api-pytests'
+                    echo "checking out source"
+                    echo "Build: ${BUILD_ID}"
+                    checkout scm
+                    GIT_COMMIT_SHORT_HASH = sh (
+                            script: """git describe --always""", returnStdout: true
+                        ).trim()
+                    GIT_COMMIT_AUTHOR = sh (
+                            script: """git show -s --pretty=%an""", returnStdout: true
+                        ).trim()
 
                 } catch (Exception e) {
-                    echo "EXCEPTION: ${e}"
-
+                    echo "error during checkout: ${e}"
+                    error('Aborted')
                 }
+                stage ('local pytest') {
+                    echo "Testing build: ${BUILD_ID}"
+                    echo "Running tests "
+                    try {
+                        sh '''
+                             cd colin-api
+                             python --version
+                             pip install pip --upgrade
+                             pip install -r requirements/testing.txt
+                             pytest --junitxml=pytest_report.xml
+                        '''
+                        junit 'colin-api/pytest_report.xml'
+                        stash includes: 'colin-api/pytest_report.xml', name: 'colin-api-pytests'
+
+                    } catch (Exception e) {
+                        echo "EXCEPTION: ${e}"
+
+                    }
 
 
-            } // end stage - local pytest
+                } // end stage - local pytest
 
-        }//end stage
+            }//end stage
+        }
     }
 
     // 4. spin down oracle pod

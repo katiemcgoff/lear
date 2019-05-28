@@ -69,7 +69,7 @@ node {
     podTemplate(label: py3njs_label, name: py3njs_label, serviceAccount: 'jenkins', cloud: 'openshift', containers: [
         containerTemplate(
             name: 'jnlp',
-            image: '172.50.0.2:5000/openshift/jenkins-slave-py3nodejs:latest',
+            image: '172.50.0.2:5000/openshift/jenkins-slave-python3nod:latest',
             resourceRequestCpu: '500m',
             resourceLimitCpu: '1000m',
             resourceRequestMemory: '1Gi',

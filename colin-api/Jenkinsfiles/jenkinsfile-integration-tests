@@ -14,6 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+def COMPONENT_NAME = 'colin-api-integration-testing'
+
+// 1. Deploy fresh oracle pod
+
 /*
 node {
     stage('deploy fresh oracle') {
@@ -62,137 +66,38 @@ node {
 }
 */
 
-    // 3. run pytests
+// 2. Build and deploy testing pod
+    stage("Build ${COMPONENT_NAME}") {
+      script {
+        openshift.withCluster() {
+          openshift.withProject() {
 
-    //node/pod needs environment setup for testing
-    def py3njs_label = "jenkins-py3nodejs-${UUID.randomUUID().toString()}"
-    podTemplate(label: py3njs_label, name: py3njs_label, serviceAccount: 'jenkins', cloud: 'openshift', containers: [
-        containerTemplate(
-            name: 'jnlp',
-            image: '172.50.0.2:5000/openshift/jenkins-slave-python3nod:latest',
-            resourceRequestCpu: '500m',
-            resourceLimitCpu: '1000m',
-            resourceRequestMemory: '1Gi',
-            resourceLimitMemory: '2Gi',
-            workingDir: '/tmp',
-            command: '',
-            args: '${computer.jnlpmac} ${computer.name}',
-            envVars: [
-                envVar(key:'TEST_ORACLE_DB_NAME', value: "ORCLCDB.localdomain"),
-                envVar(key:'TEST_ORACLE_HOST', value: "oradb1"),
-                envVar(key:'TEST_ORACLE_PORT', value: "1521"),
-                secretEnvVar(key: 'TEST_ORACLE_USER', secretName: 'oracle-integration-test', secretKey: 'test-database-user'),
-                secretEnvVar(key: 'TEST_ORACLE_PASSWORD', secretName: 'oracle-integration-test', secretKey: 'test-database-password'),
-                envVar(key:'ORACLE_INTEGRATION_TESTING', value: "True"),
-                envVar(key:'POD_TESTING', value: "True")
-           ]
-        )
-    ])
-    {
-        node (py3njs_label){
-            stage('Checkout') {
-                try {
-                    echo "checking out source"
-                    echo "Build: ${BUILD_ID}"
-                    checkout scm
-                    GIT_COMMIT_SHORT_HASH = sh (
-                            script: """git describe --always""", returnStdout: true
-                        ).trim()
-                    GIT_COMMIT_AUTHOR = sh (
-                            script: """git show -s --pretty=%an""", returnStdout: true
-                        ).trim()
-
-                } catch (Exception e) {
-                    echo "error during checkout: ${e}"
-                    error('Aborted')
-                }
-                stage ('local pytest') {
-                    echo "Testing build: ${BUILD_ID}"
-                    echo "Running tests "
-                    try {
-                        sh '''
-                             cd colin-api
-                             python --version
-                             pip install pip --upgrade
-                             pip install -r requirements/testing.txt
-                             pytest --junitxml=pytest_report.xml
-                        '''
-                        junit 'colin-api/pytest_report.xml'
-                        stash includes: 'colin-api/pytest_report.xml', name: 'colin-api-pytests'
-
-                    } catch (Exception e) {
-                        echo "EXCEPTION: ${e}"
-
-                    }
-
-
-                } // end stage - local pytest
-
-            }//end stage
+            echo "Building ${COMPONENT_NAME} ..."
+            def build = openshift.selector("bc", "${COMPONENT_NAME}")
+            build.startBuild("--wait=true").logs("-f")
+          }
         }
+      }
     }
 
-    // 4. spin down oracle pod
+    stage("Deploy ${COMPONENT_NAME}:${TAG_NAME}") {
+      script {
+        openshift.withCluster() {
+          openshift.withProject() {
 
-/*
+            echo "Tagging ${COMPONENT_NAME} for deployment to ${TAG_NAME} ..."
 
-    // create NodeJS pod to run verification steps
-    def node_label = "node-${UUID.randomUUID().toString()}"
-    podTemplate(label: node_label, name: node_label, serviceAccount: 'jenkins', cloud: 'openshift', containers: [
-        containerTemplate(
-            name: 'jnlp',
-            image: '172.50.0.2:5000/openshift/python:3.6',
-            resourceRequestCpu: '500m',
-            resourceLimitCpu: '1000m',
-            resourceRequestMemory: '1Gi',
-            resourceLimitMemory: '2Gi',
-            workingDir: '/tmp',
-            command: '',
-            args: '${computer.jnlpmac} ${computer.name}'
-        )
-    ])
-    {
-        node (node_label) {
-            checkout scm
-            dir('colin-api') {
-                try {
-                    sh '''
-                        python config.py
-                    '''
-                    stage("Run pytests") {
-                        def testResults = sh(script: "py.test", returnStatus: true)
-
-                        echo "Unit tests ran, returned ${testResults}"
-                        if (testResults > 0) {
-                            try {
-                                timeout(time: 1, unit: 'DAYS') {
-                                    input message: "tests failed. Continue?", id: "1"
-                                }
-                            } catch (Exception e) {
-                                error('Abort')
-                            }
-                        }
-                    }
-                    stage("Check code quality (lint)") {
-                        def lintResults = sh(script: "npm run lint:nofix", returnStatus: true)
-
-                        echo "Linter ran, returned ${lintResults}"
-                        if (lintResults > 0) {
-                            try {
-                                timeout(time: 1, unit: 'DAYS') {
-                                    input message: "Linter failed. Continue?", id: "2"
-                                }
-                            } catch (Exception e) {
-                                error('Abort')
-                            }
-                        }
-                    }
-
-                } catch (Exception e) {
-                    error('Failure')
-                }
-
-            }
+            // Don't tag with BUILD_ID so the pruner can do it's job; it won't delete tagged images.
+            // Tag the images for deployment based on the image's hash
+            def IMAGE_HASH = getImageTagHash("${COMPONENT_NAME}")
+            echo "IMAGE_HASH: ${IMAGE_HASH}"
+            openshift.tag("${COMPONENT_NAME}@${IMAGE_HASH}", "${COMPONENT_NAME}:${TAG_NAME}")
+          }
         }
+      }
     }
-*/
+
+
+// 3. run pytests
+
+// 4. spin down oracle pod

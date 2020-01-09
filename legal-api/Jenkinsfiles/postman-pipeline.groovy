@@ -92,6 +92,7 @@ podTemplate(label: py3nodejs_label, name: py3nodejs_label, serviceAccount: 'jenk
                     if (!all_passed) {
                         echo "Some tests failed."
                         currentBuild.result = "FAILURE"
+                        error('Failure')
                     } else {
                         echo "All tests passed!"
                     }

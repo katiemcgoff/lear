@@ -425,7 +425,7 @@
 			"name": "get business info",
 			"item": [
 				{
-					"name": "get-business - CP0002207",
+					"name": "get-business - CP0001333",
 					"event": [
 						{
 							"listen": "test",
@@ -442,9 +442,9 @@
 									"    pm.response.to.have.header('Content-Type', 'application/json');",
 									"});",
 									"",
-									"pm.test(\"Returns business info for CP0002207.\", () => {",
+									"pm.test(\"Returns business info for CP0001333.\", () => {",
 									"    pm.expect(jsonData.business).to.exist",
-									"    pm.expect(jsonData.business.identifier).to.eql(\"CP0002207\")",
+									"    pm.expect(jsonData.business.identifier).to.eql(\"CP0001333\")",
 									"});"
 								],
 								"type": "text/javascript"
@@ -468,14 +468,14 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "CP0002207"
+									"value": "CP0001333"
 								}
 							]
 						}
 					},
 					"response": [
 						{
-							"name": "get-business - CP0002207",
+							"name": "get-business - CP0001333",
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
@@ -493,7 +493,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "CP0002207"
+											"value": "CP0001333"
 										}
 									]
 								}
@@ -532,7 +532,7 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"business\": {\n        \"fiscalYearEndDate\": \"2019-08-28\",\n        \"foundingDate\": \"2014-06-27T00:00:00+00:00\",\n        \"identifier\": \"CP0002207\",\n        \"lastAnnualGeneralMeetingDate\": \"2018-11-13\",\n        \"lastAnnualReport\": \"2018-11-13\",\n        \"lastLedgerTimestamp\": \"2018-12-04T00:00:00+00:00\",\n        \"lastModified\": \"2019-08-28T18:12:42.705120+00:00\",\n        \"legalName\": \"RIVER SELECT FISHERIES COOPERATIVE\"\n    }\n}"
+							"body": "{\n    \"business\": {\n        \"fiscalYearEndDate\": \"2019-08-28\",\n        \"foundingDate\": \"2014-06-27T00:00:00+00:00\",\n        \"identifier\": \"CP0001333\",\n        \"lastAnnualGeneralMeetingDate\": \"2018-11-13\",\n        \"lastAnnualReport\": \"2018-11-13\",\n        \"lastLedgerTimestamp\": \"2018-12-04T00:00:00+00:00\",\n        \"lastModified\": \"2019-08-28T18:12:42.705120+00:00\",\n        \"legalName\": \"RIVER SELECT FISHERIES COOPERATIVE\"\n    }\n}"
 						}
 					]
 				},
@@ -589,7 +589,7 @@
 					},
 					"response": [
 						{
-							"name": "get-businesses - addresses CP0002207",
+							"name": "get-businesses - addresses CP0001333",
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
@@ -873,14 +873,14 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "CP0002207"
+									"value": "CP0001333"
 								}
 							]
 						}
 					},
 					"response": [
 						{
-							"name": "get-businesses - address by type CP0002207",
+							"name": "get-businesses - address by type CP0001333",
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
@@ -905,7 +905,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "CP0002207"
+											"value": "CP0001333"
 										}
 									]
 								}
@@ -1232,7 +1232,7 @@
 							"variable": [
 								{
 									"key": "id",
-									"value": "CP0002207"
+									"value": "CP0001333"
 								}
 							]
 						}
@@ -4549,7 +4549,7 @@
 					},
 					"response": [
 						{
-							"name": "get-business - CP0002207",
+							"name": "get-business - CP0001333",
 							"originalRequest": {
 								"method": "GET",
 								"header": [],
@@ -4567,7 +4567,7 @@
 									"variable": [
 										{
 											"key": "id",
-											"value": "CP0002207"
+											"value": "CP0001333"
 										}
 									]
 								}
@@ -4606,7 +4606,7 @@
 								}
 							],
 							"cookie": [],
-							"body": "{\n    \"business\": {\n        \"fiscalYearEndDate\": \"2019-08-28\",\n        \"foundingDate\": \"2014-06-27T00:00:00+00:00\",\n        \"identifier\": \"CP0002207\",\n        \"lastAnnualGeneralMeetingDate\": \"2018-11-13\",\n        \"lastAnnualReport\": \"2018-11-13\",\n        \"lastLedgerTimestamp\": \"2018-12-04T00:00:00+00:00\",\n        \"lastModified\": \"2019-08-28T18:12:42.705120+00:00\",\n        \"legalName\": \"RIVER SELECT FISHERIES COOPERATIVE\"\n    }\n}"
+							"body": "{\n    \"business\": {\n        \"fiscalYearEndDate\": \"2019-08-28\",\n        \"foundingDate\": \"2014-06-27T00:00:00+00:00\",\n        \"identifier\": \"CP0001333\",\n        \"lastAnnualGeneralMeetingDate\": \"2018-11-13\",\n        \"lastAnnualReport\": \"2018-11-13\",\n        \"lastLedgerTimestamp\": \"2018-12-04T00:00:00+00:00\",\n        \"lastModified\": \"2019-08-28T18:12:42.705120+00:00\",\n        \"legalName\": \"RIVER SELECT FISHERIES COOPERATIVE\"\n    }\n}"
 						}
 					]
 				},

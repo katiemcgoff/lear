@@ -25,9 +25,7 @@
 def NAMESPACE = 'gl2uos'
 def COMPONENT_NAME = 'legal-api'
 def TAG_NAME = 'dev'
-
-// constant
-def TESTS_PATH = '${COMPONENT_NAME}/tests/postman'
+def TESTS_PATH = 'legal-api/tests/postman'
 
 // define groovy functions
 import groovy.json.JsonOutput

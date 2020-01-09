@@ -27,7 +27,7 @@ def COMPONENT_NAME = 'legal-api'
 def TAG_NAME = 'dev'
 
 // constant
-def TESTS_PATH = 'tests/postman'
+def TESTS_PATH = '${COMPONENT_NAME}/tests/postman'
 
 // define groovy functions
 import groovy.json.JsonOutput

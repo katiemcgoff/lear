@@ -45,6 +45,7 @@ podTemplate(label: py3nodejs_label, name: py3nodejs_label, serviceAccount: 'jenk
         echo: "check envVar",
         envVars:([
             secretEnvVar(key: 'AUTH_URL', secretName: "postman-${TAG_NAME}-secret", secretKey: 'auth_url'),
+            secretEnvVar(key: 'TOKEN_URL', secretName: "postman-${TAG_NAME}-secret", secretKey: 'token_url'),
             secretEnvVar(key: 'REALM', secretName: "postman-${TAG_NAME}-secret", secretKey: 'realm'),
             secretEnvVar(key: 'PASSWORD', secretName: "postman-${TAG_NAME}-secret", secretKey: 'password'),
             secretEnvVar(key: 'CLIENT_SECRET', secretName: "postman-${TAG_NAME}-secret", secretKey: 'clientSecret'),
@@ -59,6 +60,7 @@ podTemplate(label: py3nodejs_label, name: py3nodejs_label, serviceAccount: 'jenk
         script {
             echo """
             AUTH_URL:${AUTH_URL} \
+            TOKEN_URL:${TOKEN_URL} \
             REALM:${REALM} \
             USERID:${USERID} \
             PASSWORD:${PASSWORD} \
@@ -80,7 +82,8 @@ podTemplate(label: py3nodejs_label, name: py3nodejs_label, serviceAccount: 'jenk
                         --global-var auth_url=${AUTH_URL} --global-var realm=${REALM} \
                         --global-var password=${PASSWORD} --global-var client_secret=${CLIENT_SECRET} \
                         --global-var userid=${USERID} --global-var clientid=${CLIENTID} \
-                        --global-var url=${url} --global-var data_reset_tool_url=${DATA_RESET_TOOL_URL}
+                        --global-var url=${url} --global-var data_reset_tool_url=${DATA_RESET_TOOL_URL} \
+                        --global-var tokenUrl=${TOKEN_URL}
 
                         """
                     } catch (Exception e) {

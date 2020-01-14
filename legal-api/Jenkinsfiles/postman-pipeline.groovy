@@ -22,84 +22,28 @@
 // define constants
 // set from call
 
-def NAMESPACE = 'gl2uos'
 def COMPONENT_NAME = 'legal-api'
 def TAG_NAME = 'dev'
-def TESTS_PATH = 'legal-api/tests/postman'
 
 // define groovy functions
 import groovy.json.JsonOutput
 
-def py3nodejs_label = "jenkins-py3nodejs-${UUID.randomUUID().toString()}"
-podTemplate(label: py3nodejs_label, name: py3nodejs_label, serviceAccount: 'jenkins', cloud: 'openshift', containers: [
-    containerTemplate(
-        name: 'jnlp',
-        image: '172.50.0.2:5000/openshift/jenkins-slave-py3nodejs',
-        resourceRequestCpu: '500m',
-        resourceLimitCpu: '1000m',
-        resourceRequestMemory: '1Gi',
-        resourceLimitMemory: '2Gi',
-        workingDir: '/tmp',
-        command: '',
-        args: '${computer.jnlpmac} ${computer.name}',
-        echo: "check envVar",
-        envVars:([
-            secretEnvVar(key: 'AUTH_URL', secretName: "postman-${TAG_NAME}-secret", secretKey: 'auth_url'),
-            secretEnvVar(key: 'TOKEN_URL', secretName: "postman-${TAG_NAME}-secret", secretKey: 'token_url'),
-            secretEnvVar(key: 'REALM', secretName: "postman-${TAG_NAME}-secret", secretKey: 'realm'),
-            secretEnvVar(key: 'PASSWORD', secretName: "postman-${TAG_NAME}-secret", secretKey: 'password'),
-            secretEnvVar(key: 'CLIENT_SECRET', secretName: "postman-${TAG_NAME}-secret", secretKey: 'clientSecret'),
-            secretEnvVar(key: 'CLIENTID', secretName: "postman-${TAG_NAME}-secret", secretKey: 'clientId'),
-            secretEnvVar(key: 'DATA_RESET_TOOL_URL', secretName: "postman-${TAG_NAME}-secret", secretKey: 'data_reset_tool_url')
-        ])
-    )
-])
-{
-    node(py3nodejs_label) {
+node {
+    stage("Run postman pipeline for ${COMPONENT_NAME}-${TAG_NAME}") {
         script {
             echo """
-            AUTH_URL:${AUTH_URL} \
-            TOKEN_URL:${TOKEN_URL} \
-            REALM:${REALM} \
-            PASSWORD:${PASSWORD} \
-            CLIENTID:${CLIENTID} \
-            CLIENT_SECRET:${CLIENT_SECRET} \
-            DATA_RESET_TOOL_URL:${DATA_RESET_TOOL_URL} \
+            Pipeline 'postman-pipeline' in gl2uos-tools called with constants:
+                - COMPONENT_NAME: ${COMPONENT_NAME}
+                - TAG_NAME: ${TAG_NAME}
             """
-            checkout scm
+            openshift.withCluster() {
+                openshift.withProject('gl2uos-tools') {
+                    // start + wait for ora-pipline to finish
+                    def pipeline = openshift.selector('bc', 'postman-pipeline')
+                    pipeline.startBuild('--wait=true', "-e=COMPONENT_NAME=${COMPONENT_NAME}", "-e=TAG_NAME=${TAG_NAME}").logs('-f')
 
-            dir("${TESTS_PATH}") {
-                all_passed = true
-                sh 'npm install newman'
-                stage("Running ${COMPONENT_NAME} pm tests") {
-                    try {
-                        echo "Running ${COMPONENT_NAME} pm collection"
-                        url = "https://${COMPONENT_NAME}-${TAG_NAME}.pathfinder.gov.bc.ca"
-
-                        sh """./node_modules/newman/bin/newman.js run ./${COMPONENT_NAME}.postman_collection.json \
-                        --global-var auth_url=${AUTH_URL} --global-var realm=${REALM} \
-                        --global-var password=${PASSWORD} --global-var client_secret=${CLIENT_SECRET} \
-                        --global-var clientid=${CLIENTID} --global-var url=${url} --global-var tokenUrl=${TOKEN_URL} \
-                        --global-var data_reset_tool_url=${DATA_RESET_TOOL_URL}
-
-                        """
-                    } catch (Exception e) {
-                        echo "One or more tests failed."
-                        echo "${e.getMessage()}"
-                        all_passed = false
-                    }
                 }
-
-                stage("Result") {
-                    if (!all_passed) {
-                        echo "Some tests failed."
-                        currentBuild.result = "FAILURE"
-                        error('Failure')
-                    } else {
-                        echo "All tests passed!"
-                    }
-                }
-            } // end dir
-        } // end script
-    } //end node
-} //end podTemplate
+            }
+        }
+    }
+}

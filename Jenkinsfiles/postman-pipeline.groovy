@@ -19,10 +19,9 @@
 //   -> hudson.model.DirectoryBrowserSupport.CSP : removes restrictions on CSS file load, thus html pages of test reports are displayed pretty
 //   See: https://docs.openshift.com/container-platform/3.9/using_images/other_images/jenkins.html for a complete list of JENKINS env vars
 
-// define constants
-// set from call
-def COMPONENT = component
-def URL = url
+// params set from call
+def COMPONENT_NAME = 'component'
+def TAG_NAME = 'url'
 
 // constant
 def TESTS_PATH = '/tests/postman'
@@ -43,48 +42,62 @@ podTemplate(label: py3nodejs_label, name: py3nodejs_label, serviceAccount: 'jenk
         command: '',
         args: '${computer.jnlpmac} ${computer.name}',
         envVars: [
-            secretEnvVar(key: 'AUTHURL', secretName: "${COMPONENT}-postman-e2e", secretKey: 'authurl'),
-            secretEnvVar(key: 'REALM', secretName: "${COMPONENT}-postman-e2e", secretKey: 'realm'),
-            secretEnvVar(key: 'PASSWORD', secretName: "${COMPONENT}-postman-e2e", secretKey: 'password'),
-            secretEnvVar(key: 'CLIENT_SECRET', secretName: "${COMPONENT}-postman-e2e", secretKey: 'client_secret'),
-            secretEnvVar(key: 'USERID', secretName: "${COMPONENT}-postman-e2e", secretKey: 'userid'),
-            secretEnvVar(key: 'CLIENTID', secretName: "${COMPONENT}-postman-e2e", secretKey: 'clientid'),
+            secretEnvVar(key: 'AUTH_URL', secretName: "postman-${TAG_NAME}-secret", secretKey: 'auth_url'),
+            secretEnvVar(key: 'TOKEN_URL', secretName: "postman-${TAG_NAME}-secret", secretKey: 'token_url'),
+            secretEnvVar(key: 'REALM', secretName: "postman-${TAG_NAME}-secret", secretKey: 'realm'),
+            secretEnvVar(key: 'PASSWORD', secretName: "postman-${TAG_NAME}-secret", secretKey: 'password'),
+            secretEnvVar(key: 'CLIENT_SECRET', secretName: "postman-${TAG_NAME}-secret", secretKey: 'clientSecret'),
+            secretEnvVar(key: 'CLIENTID', secretName: "postman-${TAG_NAME}-secret", secretKey: 'clientId'),
+            secretEnvVar(key: 'DATA_RESET_TOOL_URL', secretName: "postman-${TAG_NAME}-secret", secretKey: 'data_reset_tool_url')
         ]
     )
 ])
 {
     node(py3nodejs_label) {
-        stage("Running ${COMPONENT} tests") {
-
+        script {
             echo """
-            URL:${URL}
-            AUTHURL:${AUTHURL}
+            AUTH_URL:${AUTH_URL}
+            TOKEN_URL:${TOKEN_URL}
             REALM:${REALM}
-            USERID:${USERID}
             PASSWORD:${PASSWORD}
             CLIENTID:${CLIENTID}
             CLIENT_SECRET:${CLIENT_SECRET}
+            DATA_RESET_TOOL_URL:${DATA_RESET_TOOL_URL}
             """
             checkout scm
 
-            dir("${COMPONENT}${TESTS_PATH}") {
-
+            dir("${COMPONENT_NAME}${TESTS_PATH}") {
+                all_passed = true
                 sh 'npm install newman'
+                stage("Running ${COMPONENT_NAME} pm tests") {
+                    try {
+                        echo "Running ${COMPONENT_NAME} pm collection"
+                        url = "https://${COMPONENT_NAME}-${TAG_NAME}.pathfinder.gov.bc.ca"
 
-                try {
-                    sh """./node_modules/newman/bin/newman.js run ./${COMPONENT}.postman_collection.json \
-                    --global-var url=${URL} --global-var auth_url=${AUTHURL} --global-var realm=${REALM} \
-                    --global-var password=${PASSWORD} --global-var client_secret=${CLIENT_SECRET} \
-                    --global-var userid=${USERID} --global-var clientid=${CLIENTID}
-                    """
+                        sh """./node_modules/newman/bin/newman.js run ./${COMPONENT_NAME}.postman_collection.json \
+                        --global-var auth_url=${AUTH_URL} --global-var realm=${REALM} \
+                        --global-var password=${PASSWORD} --global-var client_secret=${CLIENT_SECRET} \
+                        --global-var clientid=${CLIENTID} --global-var url=${url} --global-var tokenUrl=${TOKEN_URL} \
+                        --global-var data_reset_tool_url=${DATA_RESET_TOOL_URL}
 
-                } catch (Exception e) {
-                    echo "One or more tests failed."
-                    echo "${e.getMessage()}"
-                    currentBuild.result = "FAILED"
+                        """
+                    } catch (Exception e) {
+                        echo "One or more tests failed."
+                        echo "${e.getMessage()}"
+                        all_passed = false
+                    }
                 }
 
+                stage("Result") {
+                    if (!all_passed) {
+                        echo "Some tests failed."
+                        currentBuild.result = "FAILURE"
+                        error('Failure')
+                    } else {
+                        echo "All tests passed!"
+                    }
+                }
             } // end dir
-        } //end stage
+        } // end script
     } //end node
 } //end podTemplate

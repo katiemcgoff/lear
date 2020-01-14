@@ -598,7 +598,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "grant_type=password&client_id={{clientid}}&username={{userid}}&password={{password}}&client_secret={{client_secret}}"
+							"raw": "grant_type=password&client_id={{clientid}}&username=CP1000001&password={{password}}&client_secret={{client_secret}}"
 						},
 						"url": {
 							"raw": "{{auth_url}}/auth/realms/{{realm}}/protocol/openid-connect/token",
@@ -1954,6 +1954,113 @@
 					"name": "Draft + PUT - CP1000001",
 					"item": [
 						{
+							"name": "authenticate",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c6720c75-f388-4f9a-a157-c4b4b560a99f",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Response time is less than 10000ms\", function () {",
+											"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Returns the access token\", () => {",
+											"    pm.expect(jsonData.access_token).to.exist",
+											"    pm.environment.set(\"token\", jsonData['access_token'])",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"username\":\"CP1000001\", \"password\":\"{{password}}\"}"
+								},
+								"url": {
+									"raw": "{{tokenUrl}}",
+									"host": [
+										"{{tokenUrl}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "authenticate",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+										},
+										"url": {
+											"raw": "{{get_token_url}}",
+											"host": [
+												"{{get_token_url}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "html",
+									"header": [
+										{
+											"key": "Server",
+											"value": "gunicorn/19.9.0"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 30 Jul 2019 18:39:41 GMT"
+										},
+										{
+											"key": "Content-Type",
+											"value": "text/html; charset=utf-8"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Methods",
+											"value": "POST, OPTIONS"
+										},
+										{
+											"key": "Access-Control-Max-Age",
+											"value": "21600"
+										},
+										{
+											"key": "API",
+											"value": "auth_api/0.1.0a0.dev-462c33674f5ae76b1e8ef2f968e55f41f26d8f95"
+										}
+									],
+									"cookie": [],
+									"body": "{\"access_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJUbWdtZUk0MnVsdUZ0N3FQbmUtcTEzdDUwa0JDbjF3bHF6dHN0UGdUM1dFIn0.eyJqdGkiOiI4NmQzMGNhNi04ZmM2LTRiMDctYWFmNS1mYWEzMjg0ODk0NzciLCJleHAiOjE1NjQ1OTgzODEsIm5iZiI6MCwiaWF0IjoxNTY0NTExOTgxLCJpc3MiOiJodHRwczovL3Nzby1kZXYucGF0aGZpbmRlci5nb3YuYmMuY2EvYXV0aC9yZWFsbXMvZmNmMGtwcXIiLCJhdWQiOiJzYmMtYXV0aC13ZWIiLCJzdWIiOiI1MmRjZDNjZi1jMmNmLTQ1NWQtYjY4Zi04NTU4NTcyMjg1OTEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzYmMtYXV0aC13ZWIiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiJkMjQ3YjhlZS1kMGI3LTQxZDgtYTA1Yy0yZGVlY2UyNmMxMTIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHA6Ly8xOTIuMTY4LjAuMTM6ODA4MC8iLCIxOTIuMTY4LjAuMTMiLCIqIiwiaHR0cDovLzE5Mi4xNjguMC4xMzo4MDgwIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjb2xpbiIsInVtYV9hdXRob3JpemF0aW9uIiwiam9iIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwicHJlZmVycmVkX3VzZXJuYW1lIjoiY29vcHMtdXBkYXRlci1qb2IiLCJ1c2VybmFtZSI6ImNvb3BzLXVwZGF0ZXItam9iIn0.Bbr9ehKYRfUvFLhjtfR3QfzRx5ItZzTWjdtxevBh1kPLhhSIqH456LBLh96vUOCqA3X2MsWpqFQrKRHdhxe5mkisXFME3J3dQKXcXnGJSsam8yRfDtMyre1DYC6bo3tIujtwr7G6OMwotcz_hGqYKm_8FjsNIKOXcMv9S88NNKohj_o9F6RXgq9JnTTP2fZakpqYn2E4imLmOSIK7ft2ODfCyH74owd35NQBse4U0B7YAvlsFjtyFInzO5wGXCzVUnS99vm4Hv4JMTsQz5R4S_HlTVwM5jAJGn4ZXu_QK6tH8J78t-7MZQn39QEdGHtf-oc4RyRGLIPdqp7wsvwfJw\", \"expires_in\": 86400, \"refresh_expires_in\": 86400, \"refresh_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJUbWdtZUk0MnVsdUZ0N3FQbmUtcTEzdDUwa0JDbjF3bHF6dHN0UGdUM1dFIn0.eyJqdGkiOiI2M2UwMGYwMi00MGNjLTQzOTUtYTJlMS00MjliOTViMDQ5ODMiLCJleHAiOjE1NjQ1OTgzODEsIm5iZiI6MCwiaWF0IjoxNTY0NTExOTgxLCJpc3MiOiJodHRwczovL3Nzby1kZXYucGF0aGZpbmRlci5nb3YuYmMuY2EvYXV0aC9yZWFsbXMvZmNmMGtwcXIiLCJhdWQiOiJzYmMtYXV0aC13ZWIiLCJzdWIiOiI1MmRjZDNjZi1jMmNmLTQ1NWQtYjY4Zi04NTU4NTcyMjg1OTEiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoic2JjLWF1dGgtd2ViIiwiYXV0aF90aW1lIjowLCJzZXNzaW9uX3N0YXRlIjoiZDI0N2I4ZWUtZDBiNy00MWQ4LWEwNWMtMmRlZWNlMjZjMTEyIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImNvbGluIiwidW1hX2F1dGhvcml6YXRpb24iLCJqb2IiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19fQ.HYmcM0cM2kVtB81mvqjVe5A3wtDW8ERidoC0M-vkSNVTscb6GuqEvaw_0w2jXZJccAhXlmKdKIb_YLWrSAg_hYJz04rj-Vw3r7TuE_I_tpAMbycsSBEb9XREGV9XNTzYk1SNAGQGsQrCDXOZWqKaAR8_QkISLRlnHmwyLXM-FrgJk8Msh37z4nnmF5dr68d5mavx6AfDJdlxx-c6A7pUaKVaQhPnzSdy80Hdew8zLUUS1oWLCMsUosDNBosv0nnfpDEaScSAxrqimIhjVRWOGZDEa3b9qkXf1pgPDU6We_n17aA77ytgepbMJNqqOLPZkZNEF9gQIJ7l0dPQGCE_vw\", \"token_type\": \"bearer\", \"not-before-policy\": 1562910731, \"session_state\": \"d247b8ee-d0b7-41d8-a05c-2deece26c112\", \"registries-trace-id\": \"f2dfaa910187eccb:f42fb400f9f894ac:f2dfaa910187eccb:1\"}"
+								}
+							]
+						},
+						{
 							"name": "get-businesses - tasks check todo",
 							"event": [
 								{
@@ -2577,6 +2684,113 @@
 				{
 					"name": "POST - CP1000006",
 					"item": [
+						{
+							"name": "authenticate",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"id": "c6720c75-f388-4f9a-a157-c4b4b560a99f",
+										"exec": [
+											"var jsonData = pm.response.json();",
+											"",
+											"pm.test(\"Response time is less than 10000ms\", function () {",
+											"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+											"});",
+											"",
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Returns the access token\", () => {",
+											"    pm.expect(jsonData.access_token).to.exist",
+											"    pm.environment.set(\"token\", jsonData['access_token'])",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"username\":\"CP1000006\", \"password\":\"{{password}}\"}"
+								},
+								"url": {
+									"raw": "{{tokenUrl}}",
+									"host": [
+										"{{tokenUrl}}"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "authenticate",
+									"originalRequest": {
+										"method": "POST",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+										},
+										"url": {
+											"raw": "{{get_token_url}}",
+											"host": [
+												"{{get_token_url}}"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "html",
+									"header": [
+										{
+											"key": "Server",
+											"value": "gunicorn/19.9.0"
+										},
+										{
+											"key": "Date",
+											"value": "Tue, 30 Jul 2019 18:39:41 GMT"
+										},
+										{
+											"key": "Content-Type",
+											"value": "text/html; charset=utf-8"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Access-Control-Allow-Methods",
+											"value": "POST, OPTIONS"
+										},
+										{
+											"key": "Access-Control-Max-Age",
+											"value": "21600"
+										},
+										{
+											"key": "API",
+											"value": "auth_api/0.1.0a0.dev-462c33674f5ae76b1e8ef2f968e55f41f26d8f95"
+										}
+									],
+									"cookie": [],
+									"body": "{\"access_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJUbWdtZUk0MnVsdUZ0N3FQbmUtcTEzdDUwa0JDbjF3bHF6dHN0UGdUM1dFIn0.eyJqdGkiOiI4NmQzMGNhNi04ZmM2LTRiMDctYWFmNS1mYWEzMjg0ODk0NzciLCJleHAiOjE1NjQ1OTgzODEsIm5iZiI6MCwiaWF0IjoxNTY0NTExOTgxLCJpc3MiOiJodHRwczovL3Nzby1kZXYucGF0aGZpbmRlci5nb3YuYmMuY2EvYXV0aC9yZWFsbXMvZmNmMGtwcXIiLCJhdWQiOiJzYmMtYXV0aC13ZWIiLCJzdWIiOiI1MmRjZDNjZi1jMmNmLTQ1NWQtYjY4Zi04NTU4NTcyMjg1OTEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzYmMtYXV0aC13ZWIiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiJkMjQ3YjhlZS1kMGI3LTQxZDgtYTA1Yy0yZGVlY2UyNmMxMTIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHA6Ly8xOTIuMTY4LjAuMTM6ODA4MC8iLCIxOTIuMTY4LjAuMTMiLCIqIiwiaHR0cDovLzE5Mi4xNjguMC4xMzo4MDgwIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjb2xpbiIsInVtYV9hdXRob3JpemF0aW9uIiwiam9iIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwicHJlZmVycmVkX3VzZXJuYW1lIjoiY29vcHMtdXBkYXRlci1qb2IiLCJ1c2VybmFtZSI6ImNvb3BzLXVwZGF0ZXItam9iIn0.Bbr9ehKYRfUvFLhjtfR3QfzRx5ItZzTWjdtxevBh1kPLhhSIqH456LBLh96vUOCqA3X2MsWpqFQrKRHdhxe5mkisXFME3J3dQKXcXnGJSsam8yRfDtMyre1DYC6bo3tIujtwr7G6OMwotcz_hGqYKm_8FjsNIKOXcMv9S88NNKohj_o9F6RXgq9JnTTP2fZakpqYn2E4imLmOSIK7ft2ODfCyH74owd35NQBse4U0B7YAvlsFjtyFInzO5wGXCzVUnS99vm4Hv4JMTsQz5R4S_HlTVwM5jAJGn4ZXu_QK6tH8J78t-7MZQn39QEdGHtf-oc4RyRGLIPdqp7wsvwfJw\", \"expires_in\": 86400, \"refresh_expires_in\": 86400, \"refresh_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJUbWdtZUk0MnVsdUZ0N3FQbmUtcTEzdDUwa0JDbjF3bHF6dHN0UGdUM1dFIn0.eyJqdGkiOiI2M2UwMGYwMi00MGNjLTQzOTUtYTJlMS00MjliOTViMDQ5ODMiLCJleHAiOjE1NjQ1OTgzODEsIm5iZiI6MCwiaWF0IjoxNTY0NTExOTgxLCJpc3MiOiJodHRwczovL3Nzby1kZXYucGF0aGZpbmRlci5nb3YuYmMuY2EvYXV0aC9yZWFsbXMvZmNmMGtwcXIiLCJhdWQiOiJzYmMtYXV0aC13ZWIiLCJzdWIiOiI1MmRjZDNjZi1jMmNmLTQ1NWQtYjY4Zi04NTU4NTcyMjg1OTEiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoic2JjLWF1dGgtd2ViIiwiYXV0aF90aW1lIjowLCJzZXNzaW9uX3N0YXRlIjoiZDI0N2I4ZWUtZDBiNy00MWQ4LWEwNWMtMmRlZWNlMjZjMTEyIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImNvbGluIiwidW1hX2F1dGhvcml6YXRpb24iLCJqb2IiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19fQ.HYmcM0cM2kVtB81mvqjVe5A3wtDW8ERidoC0M-vkSNVTscb6GuqEvaw_0w2jXZJccAhXlmKdKIb_YLWrSAg_hYJz04rj-Vw3r7TuE_I_tpAMbycsSBEb9XREGV9XNTzYk1SNAGQGsQrCDXOZWqKaAR8_QkISLRlnHmwyLXM-FrgJk8Msh37z4nnmF5dr68d5mavx6AfDJdlxx-c6A7pUaKVaQhPnzSdy80Hdew8zLUUS1oWLCMsUosDNBosv0nnfpDEaScSAxrqimIhjVRWOGZDEa3b9qkXf1pgPDU6We_n17aA77ytgepbMJNqqOLPZkZNEF9gQIJ7l0dPQGCE_vw\", \"token_type\": \"bearer\", \"not-before-policy\": 1562910731, \"session_state\": \"d247b8ee-d0b7-41d8-a05c-2deece26c112\", \"registries-trace-id\": \"f2dfaa910187eccb:f42fb400f9f894ac:f2dfaa910187eccb:1\"}"
+								}
+							]
+						},
 						{
 							"name": "get-businesses - tasks check todo",
 							"event": [
@@ -3298,7 +3512,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\"username\":\"CP1000002\", \"password\":\"257682617\"}"
+									"raw": "{\"username\":\"CP1000002\", \"password\":\"{{password}}\"}"
 								},
 								"url": {
 									"raw": "{{tokenUrl}}",
@@ -4058,6 +4272,113 @@
 			"name": "Change of Address - CP1000002",
 			"item": [
 				{
+					"name": "authenticate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c6720c75-f388-4f9a-a157-c4b4b560a99f",
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Response time is less than 10000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Returns the access token\", () => {",
+									"    pm.expect(jsonData.access_token).to.exist",
+									"    pm.environment.set(\"token\", jsonData['access_token'])",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"username\":\"CP1000002\", \"password\":\"{{password}}\"}"
+						},
+						"url": {
+							"raw": "{{tokenUrl}}",
+							"host": [
+								"{{tokenUrl}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "authenticate",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+								},
+								"url": {
+									"raw": "{{get_token_url}}",
+									"host": [
+										"{{get_token_url}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "html",
+							"header": [
+								{
+									"key": "Server",
+									"value": "gunicorn/19.9.0"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 30 Jul 2019 18:39:41 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/html; charset=utf-8"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Max-Age",
+									"value": "21600"
+								},
+								{
+									"key": "API",
+									"value": "auth_api/0.1.0a0.dev-462c33674f5ae76b1e8ef2f968e55f41f26d8f95"
+								}
+							],
+							"cookie": [],
+							"body": "{\"access_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJUbWdtZUk0MnVsdUZ0N3FQbmUtcTEzdDUwa0JDbjF3bHF6dHN0UGdUM1dFIn0.eyJqdGkiOiI4NmQzMGNhNi04ZmM2LTRiMDctYWFmNS1mYWEzMjg0ODk0NzciLCJleHAiOjE1NjQ1OTgzODEsIm5iZiI6MCwiaWF0IjoxNTY0NTExOTgxLCJpc3MiOiJodHRwczovL3Nzby1kZXYucGF0aGZpbmRlci5nb3YuYmMuY2EvYXV0aC9yZWFsbXMvZmNmMGtwcXIiLCJhdWQiOiJzYmMtYXV0aC13ZWIiLCJzdWIiOiI1MmRjZDNjZi1jMmNmLTQ1NWQtYjY4Zi04NTU4NTcyMjg1OTEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzYmMtYXV0aC13ZWIiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiJkMjQ3YjhlZS1kMGI3LTQxZDgtYTA1Yy0yZGVlY2UyNmMxMTIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHA6Ly8xOTIuMTY4LjAuMTM6ODA4MC8iLCIxOTIuMTY4LjAuMTMiLCIqIiwiaHR0cDovLzE5Mi4xNjguMC4xMzo4MDgwIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjb2xpbiIsInVtYV9hdXRob3JpemF0aW9uIiwiam9iIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwicHJlZmVycmVkX3VzZXJuYW1lIjoiY29vcHMtdXBkYXRlci1qb2IiLCJ1c2VybmFtZSI6ImNvb3BzLXVwZGF0ZXItam9iIn0.Bbr9ehKYRfUvFLhjtfR3QfzRx5ItZzTWjdtxevBh1kPLhhSIqH456LBLh96vUOCqA3X2MsWpqFQrKRHdhxe5mkisXFME3J3dQKXcXnGJSsam8yRfDtMyre1DYC6bo3tIujtwr7G6OMwotcz_hGqYKm_8FjsNIKOXcMv9S88NNKohj_o9F6RXgq9JnTTP2fZakpqYn2E4imLmOSIK7ft2ODfCyH74owd35NQBse4U0B7YAvlsFjtyFInzO5wGXCzVUnS99vm4Hv4JMTsQz5R4S_HlTVwM5jAJGn4ZXu_QK6tH8J78t-7MZQn39QEdGHtf-oc4RyRGLIPdqp7wsvwfJw\", \"expires_in\": 86400, \"refresh_expires_in\": 86400, \"refresh_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJUbWdtZUk0MnVsdUZ0N3FQbmUtcTEzdDUwa0JDbjF3bHF6dHN0UGdUM1dFIn0.eyJqdGkiOiI2M2UwMGYwMi00MGNjLTQzOTUtYTJlMS00MjliOTViMDQ5ODMiLCJleHAiOjE1NjQ1OTgzODEsIm5iZiI6MCwiaWF0IjoxNTY0NTExOTgxLCJpc3MiOiJodHRwczovL3Nzby1kZXYucGF0aGZpbmRlci5nb3YuYmMuY2EvYXV0aC9yZWFsbXMvZmNmMGtwcXIiLCJhdWQiOiJzYmMtYXV0aC13ZWIiLCJzdWIiOiI1MmRjZDNjZi1jMmNmLTQ1NWQtYjY4Zi04NTU4NTcyMjg1OTEiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoic2JjLWF1dGgtd2ViIiwiYXV0aF90aW1lIjowLCJzZXNzaW9uX3N0YXRlIjoiZDI0N2I4ZWUtZDBiNy00MWQ4LWEwNWMtMmRlZWNlMjZjMTEyIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImNvbGluIiwidW1hX2F1dGhvcml6YXRpb24iLCJqb2IiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19fQ.HYmcM0cM2kVtB81mvqjVe5A3wtDW8ERidoC0M-vkSNVTscb6GuqEvaw_0w2jXZJccAhXlmKdKIb_YLWrSAg_hYJz04rj-Vw3r7TuE_I_tpAMbycsSBEb9XREGV9XNTzYk1SNAGQGsQrCDXOZWqKaAR8_QkISLRlnHmwyLXM-FrgJk8Msh37z4nnmF5dr68d5mavx6AfDJdlxx-c6A7pUaKVaQhPnzSdy80Hdew8zLUUS1oWLCMsUosDNBosv0nnfpDEaScSAxrqimIhjVRWOGZDEa3b9qkXf1pgPDU6We_n17aA77ytgepbMJNqqOLPZkZNEF9gQIJ7l0dPQGCE_vw\", \"token_type\": \"bearer\", \"not-before-policy\": 1562910731, \"session_state\": \"d247b8ee-d0b7-41d8-a05c-2deece26c112\", \"registries-trace-id\": \"f2dfaa910187eccb:f42fb400f9f894ac:f2dfaa910187eccb:1\"}"
+						}
+					]
+				},
+				{
 					"name": "get-businesses - tasks check no COA",
 					"event": [
 						{
@@ -4660,6 +4981,113 @@
 		{
 			"name": "Change of Directors - CP1000002",
 			"item": [
+				{
+					"name": "authenticate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c6720c75-f388-4f9a-a157-c4b4b560a99f",
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Response time is less than 10000ms\", function () {",
+									"    pm.expect(pm.response.responseTime).to.be.below(10000);",
+									"});",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Returns the access token\", () => {",
+									"    pm.expect(jsonData.access_token).to.exist",
+									"    pm.environment.set(\"token\", jsonData['access_token'])",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"username\":\"CP1000002\", \"password\":\"{{password}}\"}"
+						},
+						"url": {
+							"raw": "{{tokenUrl}}",
+							"host": [
+								"{{tokenUrl}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "authenticate",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"username\":\"coops-updater-job\", \"password\":\"coops-updater-job\"}"
+								},
+								"url": {
+									"raw": "{{get_token_url}}",
+									"host": [
+										"{{get_token_url}}"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "html",
+							"header": [
+								{
+									"key": "Server",
+									"value": "gunicorn/19.9.0"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 30 Jul 2019 18:39:41 GMT"
+								},
+								{
+									"key": "Content-Type",
+									"value": "text/html; charset=utf-8"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, OPTIONS"
+								},
+								{
+									"key": "Access-Control-Max-Age",
+									"value": "21600"
+								},
+								{
+									"key": "API",
+									"value": "auth_api/0.1.0a0.dev-462c33674f5ae76b1e8ef2f968e55f41f26d8f95"
+								}
+							],
+							"cookie": [],
+							"body": "{\"access_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJUbWdtZUk0MnVsdUZ0N3FQbmUtcTEzdDUwa0JDbjF3bHF6dHN0UGdUM1dFIn0.eyJqdGkiOiI4NmQzMGNhNi04ZmM2LTRiMDctYWFmNS1mYWEzMjg0ODk0NzciLCJleHAiOjE1NjQ1OTgzODEsIm5iZiI6MCwiaWF0IjoxNTY0NTExOTgxLCJpc3MiOiJodHRwczovL3Nzby1kZXYucGF0aGZpbmRlci5nb3YuYmMuY2EvYXV0aC9yZWFsbXMvZmNmMGtwcXIiLCJhdWQiOiJzYmMtYXV0aC13ZWIiLCJzdWIiOiI1MmRjZDNjZi1jMmNmLTQ1NWQtYjY4Zi04NTU4NTcyMjg1OTEiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJzYmMtYXV0aC13ZWIiLCJhdXRoX3RpbWUiOjAsInNlc3Npb25fc3RhdGUiOiJkMjQ3YjhlZS1kMGI3LTQxZDgtYTA1Yy0yZGVlY2UyNmMxMTIiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHA6Ly8xOTIuMTY4LjAuMTM6ODA4MC8iLCIxOTIuMTY4LjAuMTMiLCIqIiwiaHR0cDovLzE5Mi4xNjguMC4xMzo4MDgwIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJjb2xpbiIsInVtYV9hdXRob3JpemF0aW9uIiwiam9iIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwicHJlZmVycmVkX3VzZXJuYW1lIjoiY29vcHMtdXBkYXRlci1qb2IiLCJ1c2VybmFtZSI6ImNvb3BzLXVwZGF0ZXItam9iIn0.Bbr9ehKYRfUvFLhjtfR3QfzRx5ItZzTWjdtxevBh1kPLhhSIqH456LBLh96vUOCqA3X2MsWpqFQrKRHdhxe5mkisXFME3J3dQKXcXnGJSsam8yRfDtMyre1DYC6bo3tIujtwr7G6OMwotcz_hGqYKm_8FjsNIKOXcMv9S88NNKohj_o9F6RXgq9JnTTP2fZakpqYn2E4imLmOSIK7ft2ODfCyH74owd35NQBse4U0B7YAvlsFjtyFInzO5wGXCzVUnS99vm4Hv4JMTsQz5R4S_HlTVwM5jAJGn4ZXu_QK6tH8J78t-7MZQn39QEdGHtf-oc4RyRGLIPdqp7wsvwfJw\", \"expires_in\": 86400, \"refresh_expires_in\": 86400, \"refresh_token\": \"eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJUbWdtZUk0MnVsdUZ0N3FQbmUtcTEzdDUwa0JDbjF3bHF6dHN0UGdUM1dFIn0.eyJqdGkiOiI2M2UwMGYwMi00MGNjLTQzOTUtYTJlMS00MjliOTViMDQ5ODMiLCJleHAiOjE1NjQ1OTgzODEsIm5iZiI6MCwiaWF0IjoxNTY0NTExOTgxLCJpc3MiOiJodHRwczovL3Nzby1kZXYucGF0aGZpbmRlci5nb3YuYmMuY2EvYXV0aC9yZWFsbXMvZmNmMGtwcXIiLCJhdWQiOiJzYmMtYXV0aC13ZWIiLCJzdWIiOiI1MmRjZDNjZi1jMmNmLTQ1NWQtYjY4Zi04NTU4NTcyMjg1OTEiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoic2JjLWF1dGgtd2ViIiwiYXV0aF90aW1lIjowLCJzZXNzaW9uX3N0YXRlIjoiZDI0N2I4ZWUtZDBiNy00MWQ4LWEwNWMtMmRlZWNlMjZjMTEyIiwicmVhbG1fYWNjZXNzIjp7InJvbGVzIjpbImNvbGluIiwidW1hX2F1dGhvcml6YXRpb24iLCJqb2IiXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19fQ.HYmcM0cM2kVtB81mvqjVe5A3wtDW8ERidoC0M-vkSNVTscb6GuqEvaw_0w2jXZJccAhXlmKdKIb_YLWrSAg_hYJz04rj-Vw3r7TuE_I_tpAMbycsSBEb9XREGV9XNTzYk1SNAGQGsQrCDXOZWqKaAR8_QkISLRlnHmwyLXM-FrgJk8Msh37z4nnmF5dr68d5mavx6AfDJdlxx-c6A7pUaKVaQhPnzSdy80Hdew8zLUUS1oWLCMsUosDNBosv0nnfpDEaScSAxrqimIhjVRWOGZDEa3b9qkXf1pgPDU6We_n17aA77ytgepbMJNqqOLPZkZNEF9gQIJ7l0dPQGCE_vw\", \"token_type\": \"bearer\", \"not-before-policy\": 1562910731, \"session_state\": \"d247b8ee-d0b7-41d8-a05c-2deece26c112\", \"registries-trace-id\": \"f2dfaa910187eccb:f42fb400f9f894ac:f2dfaa910187eccb:1\"}"
+						}
+					]
+				},
 				{
 					"name": "get-business - set up tests",
 					"event": [

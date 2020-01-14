@@ -78,8 +78,8 @@ podTemplate(label: py3nodejs_label, name: py3nodejs_label, serviceAccount: 'jenk
 
                         sh """./node_modules/newman/bin/newman.js run ./${COMPONENT_NAME}.postman_collection.json \
                         --global-var auth_url=${AUTH_URL} --global-var realm=${REALM} \
-                        --global-var password=${PASSWORD} --global-var clientSecret=${CLIENT_SECRET} \
-                        --global-var userid=${USERID} --global-var clientId=${CLIENTID} \
+                        --global-var password=${PASSWORD} --global-var client_secret=${CLIENT_SECRET} \
+                        --global-var userid=${USERID} --global-var clientid=${CLIENTID} \
                         --global-var url=${url} --global-var data_reset_tool_url=${DATA_RESET_TOOL_URL}
 
                         """
